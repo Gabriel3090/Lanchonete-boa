@@ -1,15 +1,16 @@
 package com.example.cliente;
 
 public class ContaLanchonete {
-    private int idConta;  // Pode ser opcional
-    private int idCli;    // FK para Cliente
-    private String dataAbertura;  // yyyy-MM-dd HH:mm:ss
+    private int idConta;
+    private String dataAbertura;
     private double valorTotal;
 
-    public ContaLanchonete(int idCli, String dataAbertura, double valorTotal) {
-        this.idCli = idCli;
+    public ContaLanchonete(String dataAbertura, double valorTotal) {
         this.dataAbertura = dataAbertura;
         this.valorTotal = valorTotal;
+    }
+
+    public ContaLanchonete() {
     }
 
     public int getIdConta() {
@@ -20,15 +21,19 @@ public class ContaLanchonete {
         this.idConta = idConta;
     }
 
-    public int getIdCli() {
-        return idCli;
-    }
-
     public String getDataAbertura() {
         return dataAbertura;
     }
 
+    public void setDataAbertura(String dataAbertura) {
+        this.dataAbertura = dataAbertura;
+    }
+
     public double getValorTotal() {
         return valorTotal;
+    }
+
+    public void setValorTotal(double valorTotal) {
+        this.valorTotal = valorTotal;
     }
 }

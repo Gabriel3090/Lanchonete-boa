@@ -23,16 +23,15 @@ public class MenuActivity extends AppCompatActivity {
     private Button btnAdicionar, btnFinalizar;
     private TextView tvTotal;
 
-    private ArrayList<ItemPedido> listaItens = new ArrayList<>();
+    private ArrayList<ItensConta> listaItens = new ArrayList<>();
     private double total = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_menu);  
+        setContentView(R.layout.activity_menu);
 
-        
         rgSanduiches = findViewById(R.id.rgSanduiches);
         rgRefrigerantes = findViewById(R.id.rgRefrigerantes);
         cbBatataFrita = findViewById(R.id.cbBatataFrita);
@@ -43,7 +42,6 @@ public class MenuActivity extends AppCompatActivity {
         btnFinalizar = findViewById(R.id.btnFinalizar);
         tvTotal = findViewById(R.id.tvTotal);
 
- 
         btnAdicionar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,9 +84,22 @@ public class MenuActivity extends AppCompatActivity {
                 double precoRefrigerante = 5.0;
                 double precoAcompanhamento = 5.0;
 
-                double precoTotalItem = (precoSanduiche + precoRefrigerante + (acompanhamentos.size() * precoAcompanhamento)) * quantidade;
+                double precoUni = precoSanduiche + precoRefrigerante + (acompanhamentos.size() * precoAcompanhamento);
+                double precoTotalItem = precoUni * quantidade;
 
-                ItemPedido item = new ItemPedido(sanduiche, refrigerante, acompanhamentos, quantidade, precoTotalItem);
+
+                String descricao = sanduiche + " + " + refrigerante;
+                if (!acompanhamentos.isEmpty()) {
+                    descricao += " (" + String.join(", ", acompanhamentos) + ")";
+                }
+
+
+                ItensConta item = new ItensConta();
+                item.setDescricao(descricao);
+                item.setQuantidade(quantidade);
+                item.setPrecoUni(precoUni);
+                item.setIdConta(0);
+
                 listaItens.add(item);
 
                 total += precoTotalItem;
@@ -104,52 +115,53 @@ public class MenuActivity extends AppCompatActivity {
             }
         });
 
-       
         btnFinalizar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listaItens.isEmpty()) {
-                    Toast.makeText(MenuActivity.this, "Nenhum item no pedido!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MenuActivity.this, "Nenhum item adicionado!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                StringBuilder resumo = new StringBuilder("Pedido finalizado:");
-                for (ItemPedido item : listaItens) {
-                    resumo.append(item.quantidade).append("x ").append(item.sanduiche)
-                            .append(" + ").append(item.refrigerante);
+                ContaLanchonete conta = new ContaLanchonete();
+                conta.setValorTotal(total);
 
-                    if (!item.acompanhamentos.isEmpty()) {
-                        resumo.append(" (").append(String.join(", ", item.acompanhamentos)).append(")");
-                    }
-                    resumo.append(" - R$ ").append(String.format("%.2f", item.precoTotal)).append("");
+                BancodeDados banco = BancodeDados.getInstance(MenuActivity.this);
+                long idConta = banco.insertContaLanchonete(conta);
+
+                if (idConta == -1) {
+                    Toast.makeText(MenuActivity.this, "Erro ao salvar a conta!", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                resumo.append("Total: R$ ").append(String.format("%.2f", total));
 
-                Toast.makeText(MenuActivity.this, resumo.toString(), Toast.LENGTH_LONG).show();
+                boolean erroAoSalvarItem = false;
 
+                for (ItensConta item : listaItens) {
+                    item.setIdConta((int) idConta);
+                    long resultado = banco.insertItensConta(item);
+                    if (resultado == -1) {
+                        erroAoSalvarItem = true;
+                        break;
+                    }
+                }
 
+                if (erroAoSalvarItem) {
+                    Toast.makeText(MenuActivity.this, "Erro ao salvar um item!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MenuActivity.this, "Conta finalizada e salva com sucesso!", Toast.LENGTH_SHORT).show();
+                }
 
                 listaItens.clear();
                 total = 0.0;
-                tvTotal.setText("R$ 0,00");
+                tvTotal.setText(String.format("R$ %.2f", total));
+
+                rgSanduiches.clearCheck();
+                rgRefrigerantes.clearCheck();
+                cbBatataFrita.setChecked(false);
+                cbOnionRings.setChecked(false);
+                cbSalada.setChecked(false);
+                etQuantidade.setText("");
             }
         });
-    }
-
-    
-    private static class ItemPedido {
-        String sanduiche;
-        String refrigerante;
-        ArrayList<String> acompanhamentos;
-        int quantidade;
-        double precoTotal;
-
-        public ItemPedido(String sanduiche, String refrigerante, ArrayList<String> acompanhamentos, int quantidade, double precoTotal) {
-            this.sanduiche = sanduiche;
-            this.refrigerante = refrigerante;
-            this.acompanhamentos = acompanhamentos;
-            this.quantidade = quantidade;
-            this.precoTotal = precoTotal;
-        }
     }
 }

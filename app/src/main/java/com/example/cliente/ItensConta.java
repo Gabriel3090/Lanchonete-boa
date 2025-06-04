@@ -1,40 +1,21 @@
 package com.example.cliente;
 
 public class ItensConta {
-    private int idItem;   // Pode ser opcional
-    private int idConta;  // FK para ContaLanchonete
+    private long idConta;
     private String descricao;
     private int quantidade;
     private double precoUni;
 
-    public ItensConta(int idConta, String descricao, int quantidade, double precoUni) {
-        this.idConta = idConta;
-        this.descricao = descricao;
-        this.quantidade = quantidade;
-        this.precoUni = precoUni;
-    }
+    // getters e setters
+    public long getIdConta() { return idConta; }
+    public void setIdConta(long idConta) { this.idConta = idConta; }
 
-    public int getIdItem() {
-        return idItem;
-    }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
 
-    public void setIdItem(int idItem) {
-        this.idItem = idItem;
-    }
+    public int getQuantidade() { return quantidade; }
+    public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
 
-    public int getIdConta() {
-        return idConta;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public int getQuantidade() {
-        return quantidade;
-    }
-
-    public double getPrecoUni() {
-        return precoUni;
-    }
+    public double getPrecoUni() { return precoUni; }
+    public void setPrecoUni(double precoUni) { this.precoUni = precoUni; }
 }

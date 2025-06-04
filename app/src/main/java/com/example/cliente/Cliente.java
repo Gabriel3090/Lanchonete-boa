@@ -10,14 +10,6 @@ public class Cliente {
         this.telefone = telefone;
     }
 
-    public int getIdCli() {
-        return idCli;
-    }
-
-    public void setIdCli(int idCli) {
-        this.idCli = idCli;
-    }
-
     public String getNomeCli() {
         return nomeCli;
     }
